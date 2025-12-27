@@ -1,0 +1,10 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "corporate-training-system"
+compatibility_date = "2024-04-01"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "training_db"
+database_id = "8a16b935-0ae0-4100-8888-2655ca763a9d" # To be filled by user or CLI
+migrations_dir = "migrations"
