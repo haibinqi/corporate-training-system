@@ -1,15 +1,57 @@
 import React, { useState } from 'react';
 import { Plus, BookOpen, ExternalLink, FileText, MoreVertical, Edit2, Trash2, Eye, X, Link, Type } from 'lucide-react';
 
-export const CourseManagement: React.FC = () => {
-    const [openMenu, setOpenMenu] = useState<string | null>(null);
-    const [showCreateModal, setShowCreateModal] = useState(false);
+interface Course {
+    id: string;
+    title: string;
+    type: 'PDF' | 'LINK' | 'TEXT';
+    status: 'PUBLISHED' | 'UNPUBLISHED';
+    date: string;
+}
 
-    const courses = [
+export const CourseManagement: React.FC = () => {
+    const [courses, setCourses] = useState<Course[]>([
         { id: '1', title: '2024年度安全生产核心指南', type: 'PDF', status: 'PUBLISHED', date: '2023-12-01' },
         { id: '2', title: '员工手册及合规准则', type: 'LINK', status: 'PUBLISHED', date: '2023-11-20' },
         { id: '3', title: '消防安全实操演示', type: 'TEXT', status: 'UNPUBLISHED', date: '2023-11-15' },
-    ];
+    ]);
+
+    const [openMenu, setOpenMenu] = useState<string | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+
+    const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const newCourse: Course = {
+            id: Math.random().toString(36).substr(2, 9),
+            title: formData.get('title') as string,
+            type: 'PDF', // Simplified for demo, can be state-driven
+            status: 'PUBLISHED',
+            date: new Date().toISOString().split('T')[0]
+        };
+        setCourses([newCourse, ...courses]);
+        setShowCreateModal(false);
+    };
+
+    const handleEdit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!editingCourse) return;
+        const formData = new FormData(e.currentTarget);
+        const updatedCourses = courses.map(c => c.id === editingCourse.id ? {
+            ...c,
+            title: formData.get('title') as string,
+        } : c);
+        setCourses(updatedCourses);
+        setEditingCourse(null);
+    };
+
+    const handleDelete = (id: string) => {
+        if (confirm('确定要删除此课程吗？')) {
+            setCourses(courses.filter(c => c.id !== id));
+            setOpenMenu(null);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -54,11 +96,17 @@ export const CourseManagement: React.FC = () => {
                                             <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 font-medium transition-colors">
                                                 <Eye size={14} /> 查看内容
                                             </button>
-                                            <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 font-medium transition-colors">
+                                            <button
+                                                onClick={() => { setEditingCourse(course); setOpenMenu(null); }}
+                                                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 font-medium transition-colors"
+                                            >
                                                 <Edit2 size={14} /> 编辑课程
                                             </button>
                                             <div className="h-px bg-slate-50 my-1"></div>
-                                            <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors">
+                                            <button
+                                                onClick={() => handleDelete(course.id)}
+                                                className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
+                                            >
                                                 <Trash2 size={14} /> 删除
                                             </button>
                                         </div>
@@ -73,7 +121,7 @@ export const CourseManagement: React.FC = () => {
                                 }`}>
                                 {course.status === 'PUBLISHED' ? '已上架' : '已下架'}
                             </span>
-                            <button className="text-blue-600 text-sm font-bold hover:underline">编辑内容</button>
+                            <button className="text-blue-600 text-sm font-bold hover:underline" onClick={() => setEditingCourse(course)}>编辑内容</button>
                         </div>
                     </div>
                 ))}
@@ -90,10 +138,10 @@ export const CourseManagement: React.FC = () => {
                                 <X size={20} />
                             </button>
                         </div>
-                        <form className="p-8 space-y-6" onSubmit={(e) => { e.preventDefault(); setShowCreateModal(false); }}>
+                        <form className="p-8 space-y-6" onSubmit={handleCreate}>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700">课程标题</label>
-                                <input type="text" placeholder="输入课程名称" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 transition-all font-medium" required />
+                                <input name="title" type="text" placeholder="输入课程名称" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 transition-all font-medium" required />
                             </div>
                             <div className="space-y-4">
                                 <label className="text-sm font-bold text-slate-700 block">课程类型</label>
@@ -111,6 +159,47 @@ export const CourseManagement: React.FC = () => {
                                 <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 px-4 py-3 font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-all">取消</button>
                                 <button type="submit" className="flex-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
                                     立即上传
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Course Modal */}
+            {editingCourse && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setEditingCourse(null)}></div>
+                    <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl relative z-60 overflow-hidden animate-in zoom-in slide-in-from-bottom-10 duration-300">
+                        <div className="p-6 border-b flex justify-between items-center bg-blue-50/30">
+                            <h3 className="text-xl font-bold text-blue-800">编辑课程信息</h3>
+                            <button onClick={() => setEditingCourse(null)} className="p-2 hover:bg-white rounded-full text-slate-400 shadow-sm transition-all">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form className="p-8 space-y-6" onSubmit={handleEdit}>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">课程标题</label>
+                                <input
+                                    name="title"
+                                    type="text"
+                                    defaultValue={editingCourse.title}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 transition-all font-medium"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-slate-700 block">课程类型</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <TypeCard icon={<FileText size={18} />} label="PDF" active={editingCourse.type === 'PDF'} />
+                                    <TypeCard icon={<Link size={18} />} label="超链接" active={editingCourse.type === 'LINK'} />
+                                    <TypeCard icon={<Type size={18} />} label="富文本" active={editingCourse.type === 'TEXT'} />
+                                </div>
+                            </div>
+                            <div className="pt-4 flex gap-3">
+                                <button type="button" onClick={() => setEditingCourse(null)} className="flex-1 px-4 py-3 font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-all">取消</button>
+                                <button type="submit" className="flex-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+                                    保存修改
                                 </button>
                             </div>
                         </form>
