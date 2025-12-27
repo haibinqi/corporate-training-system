@@ -1,7 +1,12 @@
 // functions/_middleware.ts
 export const onRequest = async ({ request, next, env }) => {
   const url = new URL(request.url);
-  
+
+  // Only apply auth to /api routes
+  if (!url.pathname.startsWith('/api/')) {
+    return next();
+  }
+
   // Skip auth for login API
   if (url.pathname === '/api/auth/login') {
     return next();
@@ -15,13 +20,19 @@ export const onRequest = async ({ request, next, env }) => {
 
   // Mock User Session from Header (For demo purposes)
   // In production, verify JWT and fetch user from DB/KV
-  const [role, userId] = authHeader.split(' '); // Expected "STUDENT user_id" or "ADMIN user_id"
-  
+  const parts = authHeader.split(' ');
+  if (parts.length < 2) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const [role, userId] = parts;
+
   if (!['ADMIN', 'STUDENT'].includes(role)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  request.user = { id: userId, role };
+  // Pass user info to context
+  const user = { id: userId, role };
 
   // RBAC control
   if (url.pathname.startsWith('/api/admin') && role !== 'ADMIN') {
