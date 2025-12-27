@@ -49,7 +49,11 @@ export const ExamRecords: React.FC = () => {
 
                 <div className="divide-y divide-slate-100">
                     {records.map(record => (
-                        <div key={record.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
+                        <div
+                            key={record.id}
+                            onClick={() => alert(`查看记录: ${record.id}`)}
+                            className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group"
+                        >
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
                                     <User size={20} />

@@ -134,12 +134,15 @@ export const StudentDashboard: React.FC = () => {
 };
 
 const ExamCard = ({ title, course, duration, questions, deadline, onTake }: any) => (
-    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+    <div
+        onClick={onTake}
+        className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all group cursor-pointer"
+    >
         <div className="flex justify-between items-start">
             <div className="space-y-4 flex-1">
                 <div>
                     <span className="text-[10px] uppercase tracking-wider font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">PENDING</span>
-                    <h3 className="text-xl font-bold text-slate-800 mt-2">{title}</h3>
+                    <h3 className="text-xl font-bold text-slate-800 mt-2 group-hover:text-blue-600 transition-colors">{title}</h3>
                 </div>
                 <div className="flex items-center gap-6 text-sm text-slate-500">
                     <span className="flex items-center gap-1.5"><Clock size={16} className="text-slate-300" /> {duration}</span>
@@ -148,12 +151,9 @@ const ExamCard = ({ title, course, duration, questions, deadline, onTake }: any)
                 </div>
                 <p className="text-slate-400 text-sm">关联课程: <span className="text-slate-600">{course}</span></p>
             </div>
-            <button
-                onClick={onTake}
-                className="bg-slate-50 text-slate-400 p-4 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm"
-            >
+            <div className="bg-slate-50 text-slate-400 p-4 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
                 <ArrowRight size={24} />
-            </button>
+            </div>
         </div>
     </div>
 );
