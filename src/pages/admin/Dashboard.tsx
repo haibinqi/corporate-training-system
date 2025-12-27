@@ -14,7 +14,7 @@ import { ExamRecords } from './ExamRecords';
 
 type AdminView = 'dashboard' | 'users' | 'courses' | 'exams' | 'records';
 
-export const AdminDashboard: React.FC = () => {
+export const AdminDashboard: React.FC<{ user: { id: string, name: string }, onLogout: () => void }> = ({ user, onLogout }) => {
     const [currentView, setCurrentView] = useState<AdminView>('dashboard');
 
     const renderContent = () => {
@@ -99,7 +99,7 @@ export const AdminDashboard: React.FC = () => {
                 </nav>
 
                 <div className="p-4 border-t">
-                    <button onClick={() => window.location.reload()} className="flex items-center gap-3 w-full px-4 py-3 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">
+                    <button onClick={onLogout} className="flex items-center gap-3 w-full px-4 py-3 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">
                         <LogOut size={18} />
                         <span className="font-medium">Logout</span>
                     </button>
@@ -110,7 +110,7 @@ export const AdminDashboard: React.FC = () => {
             <main className="flex-1 overflow-auto">
                 <header className="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10">
                     <h1 className="text-xl font-bold text-slate-800">
-                        {currentView === 'dashboard' ? '欢迎回来，管理员' :
+                        {currentView === 'dashboard' ? `欢迎回来，${user.name}` :
                             currentView === 'users' ? '账号管理中心' :
                                 currentView === 'courses' ? '课程资料库' :
                                     currentView === 'exams' ? '考试分发系统' : '考试统计与留痕'}

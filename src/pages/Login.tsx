@@ -1,26 +1,30 @@
 import React, { useState } from 'react';
 import { User, Lock, ShieldCheck } from 'lucide-react';
+import { api } from '../services/api';
 
 interface LoginProps {
-    onLogin: (user: { role: string; id: string }) => void;
+    onLogin: (user: { role: string; id: string; name: string }) => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
-    const [account, setAccount] = useState('');
-    const [password, setPassword] = useState('');
+    const [account, setAccount] = useState('admin');
+    const [password, setPassword] = useState('admin123');
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setError(null);
 
-        // Simulate API call
-        setTimeout(() => {
-            // For demo, if account contains 'admin' -> ADMIN, else STUDENT
-            const role = account.toLowerCase().includes('admin') ? 'ADMIN' : 'STUDENT';
-            onLogin({ role, id: account });
+        try {
+            const user = await api.login(account, password);
+            onLogin(user);
+        } catch (err: any) {
+            setError(err.message || '登录失败，请检查账号密码');
+        } finally {
             setIsLoading(false);
-        }, 800);
+        }
     };
 
     return (
@@ -37,6 +41,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <p className="text-slate-500 text-sm mb-10">请输入账号密码登录系统</p>
 
                     <form onSubmit={handleLogin} className="space-y-6 text-left">
+                        {error && (
+                            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium animate-in fade-in slide-in-from-top-2">
+                                {error}
+                            </div>
+                        )}
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-slate-700 ml-1">账号</label>
                             <div className="relative group">

@@ -71,3 +71,12 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     timestamp INTEGER NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+-- Seed Data
+INSERT INTO users (id, account, password_hash, role, status, real_name, created_at) 
+VALUES ('admin_01', 'admin', 'admin123', 'ADMIN', 'ACTIVE', '系统管理员', 1700000000000);
+
+INSERT INTO users (id, account, password_hash, role, status, real_name, created_at) 
+VALUES ('stu_01', 'stu123', 'pass123', 'STUDENT', 'ACTIVE', '陈小明', 1700000000000);
+
+INSERT INTO users (id, account, password_hash, role, status, real_name, created_at) 
+VALUES ('stu_02', 'stu456', 'pass123', 'STUDENT', 'ACTIVE', '王大锤', 1700000000000);
